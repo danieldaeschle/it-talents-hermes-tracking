@@ -1,0 +1,21 @@
+{
+  "name": "it-talents-sendungsverfolgung",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Daniel Däschle",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "latest",
+    "crc": "^3.5.0",
+    "express": "^4.16.2",
+    "mustache": "^2.3.0",
+    "mustache-express": "^1.2.5",
+    "payload-validator": "^1.0.4",
+    "sequelize": "^4.33.4",
+    "sqlite3": "^3.1.13"
+  }
+}
