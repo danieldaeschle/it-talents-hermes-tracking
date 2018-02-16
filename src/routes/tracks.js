@@ -1,7 +1,7 @@
 const express = require('express');
-const payloadValidator = require('payload-validator');
+const Joi = require('joi');
 
-const { Track } = require('../models');
+const { Track, TrackSchema, PackageState, PackageStateSchema } = require('../models');
 const { generateTrackingNumber } = require('../lib');
 
 const router = express.Router();
@@ -25,70 +25,92 @@ router.route('/api/tracks/:trackingId')
       }
     });
   })
-  .put((req, res) => {
+  .post((req, res) => {
     let id = req.params.trackingId;
 
     // Validate payload
-    let result = payloadValidator.validator(req.body, {
-      senderPostCode: ''
-    }, ['senderPostCode', 'receiverPostCode', 'date', 'packageSize', 'isExpress'], true);
+    let {error, value} = Joi.validate(req.body, {
+      packageState: PackageStateSchema
+    });
+    value.trackId = id;
 
-    if (result.success) {
-      Track
-        .update(result.elements, { where: { trackingNumber: id } })
-        .then(result => {
-          res.send(result);
+    if (!error) {
+      // Create package state or return error
+      PackageState
+        .findOrCreate({
+          where: {
+            progress: value.progress,
+            trackId: id
+          },
+          defaults: value
+        })
+        .spread((track, created) => {
+          if (created) {
+            // On saved
+            res.json({
+              data: {
+                trackId: track.trackId,
+                locationPostCode: track.locationPostCode,
+                message: track.message,
+                progress: track.progress
+              },
+              error: false
+            });
+          } else {
+            // Return error
+            res.status(400).json({ message: 'State of package already exists', error: true });
+          }
         });
     } else {
-      res.status(400).json({ message: result.response.errorMessage });
+      // Returns {errors: [...]}
+      res.status(400).json({ error: true, message: error.details.map(it => it.message)[0] });
     }
   });
 
 router.post('/api/tracks', (req, res) => {
   // Validate payload
-  let result = payloadValidator.validator(req.body, {
-    senderPostCode: '',
-    receiverPostCode: '',
-    date: '',
-    packageSize: 1,
-    isExpress: false
-  }, ['senderPostCode', 'receiverPostCode', 'date', 'packageSize', 'isExpress'], true);
+  let {error, value} = Joi.validate(req.body, TrackSchema);
 
   // Check if validation is successful
-  if (result.success) {
-    let data = result.elements;
-    result.elements.trackingNumber = generateTrackingNumber(
-      data.senderPostCode,
-      data.receiverPostCode,
-      data.date,
-      data.packageSize,
-      data.isExpress
+  if (!error) {
+    value.trackingNumber = generateTrackingNumber(
+      value.senderPostCode,
+      value.receiverPostCode,
+      value.date,
+      value.packageSize,
+      value.isExpress
     );
 
     // Create object or return error
     Track
       .findOrCreate({
-        where: data,
+        where: value,
         defaults: {
-          trackingNumber: data.trackingNumber
+          trackingNumber: value.trackingNumber
         }
       })
       .spread((track, created) => {
         if (created) {
+          // On saved
           res.json({
-            trackingNumber: track.trackingNumber,
-            senderPostCode: track.senderPostCode,
-            receiverPostCode: track.receiverPostCode,
-            date: track.date,
-            packageSize: track.packageSize,
-            isExpress: track.isExpress
+            data: {
+              trackingNumber: track.trackingNumber,
+              senderPostCode: track.senderPostCode,
+              receiverPostCode: track.receiverPostCode,
+              date: track.date,
+              packageSize: track.packageSize,
+              isExpress: track.isExpress,
+            },
+            error: false
           });
         } else {
-          res.status(400).json({ message: 'Track already exists' });
+          // Return error
+          res.status(400).json({ message: 'Track already exists', error: true });
         }
       });
   } else {
-    res.status(400).json({ message: result.response.errorMessage });
+    // Returns {errors: [...]}
+    res.status(400).json({ error: true, message: error.details.map(it => it.message)[0] });
   }
 });
 

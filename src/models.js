@@ -1,4 +1,5 @@
 const { Sequelize, DataTypes } = require('sequelize');
+const Joi = require('joi');
 
 const db = new Sequelize('sqlite://database.sqlite', {
   logging: false
@@ -31,12 +32,20 @@ const Track = db.define('Track', {
   }
 });
 
+const TrackSchema = Joi.object().keys({
+  senderPostCode: Joi.string().required(),
+  receiverPostCode: Joi.string().required(),
+  date: Joi.string().regex(/^\d{4}-\d{2}-\d{2}T(\d{2}:){2}\d{2}(\.\d{1,6})?Z$/).required(),
+  packageSize: Joi.number().integer().min(1).max(4).required(),
+  isExpress: Joi.boolean().default(false)
+});
+
 const PackageState = db.define('PackageState', {
   progress: {
     type: DataTypes.INTEGER,
     validate: {
       min: 1,
-      max: 5
+      max: 4
     },
     unique: true
   },
@@ -55,8 +64,14 @@ const PackageState = db.define('PackageState', {
   }
 });
 
+const PackageStateSchema = Joi.object().keys({
+  progress: Joi.number().integer().min(1).max(4).required(),
+  locationPostCode: Joi.string().required(),
+  message: Joi.string()
+});
+
 PackageState.sync();
 Track.hasMany(PackageState);
 Track.sync();
 
-module.exports = {Track, PackageState};
+module.exports = {Track, TrackSchema, PackageState, PackageStateSchema};
