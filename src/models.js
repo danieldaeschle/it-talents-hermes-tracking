@@ -1,35 +1,62 @@
 const { Sequelize, DataTypes } = require('sequelize');
 
-const database = new Sequelize('sqlite://database.sqlite');
+const db = new Sequelize('sqlite://database.sqlite', {
+  logging: false
+});
 
-const Track = database.define('track', {
+const Track = db.define('Track', {
+  trackingNumber: {
+    type: DataTypes.STRING,
+    primaryKey: true,
+    unique: true
+  },
   senderPostCode: {
     type: DataTypes.STRING,
-    field: 'SenderPostCode'
   },
   receiverPostCode: {
     type: DataTypes.STRING,
-    field: 'ReceiverPostCode'
   },
   date: {
     type: DataTypes.STRING,
-    field: 'Date'
   },
   packageSize: {
     type: DataTypes.INTEGER,
-    field: 'PackageSize'
+    validate: {
+      min: 1,
+      max: 4
+    }
   },
   isExpress: {
     type: DataTypes.BOOLEAN,
-    field: 'IsExpress'
-  },
-  trackingNumber: {
-    type: DataTypes.STRING,
-    field: 'TrackingNumber'
   }
 });
 
+const PackageState = db.define('PackageState', {
+  progress: {
+    type: DataTypes.INTEGER,
+    validate: {
+      min: 1,
+      max: 5
+    },
+    unique: true
+  },
+  locationPostCode: {
+    type: DataTypes.STRING
+  },
+  message: {
+    type: DataTypes.STRING
+  },
+  trackId: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: Track,
+      key: 'trackingNumber'
+    }
+  }
+});
+
+PackageState.sync();
+Track.hasMany(PackageState);
 Track.sync();
 
-module.exports = {Track};
-
+module.exports = {Track, PackageState};
