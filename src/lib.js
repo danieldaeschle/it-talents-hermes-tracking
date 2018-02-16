@@ -16,7 +16,7 @@ function generateTrackingNumber(
   ).toString(16), 16);
 
   // HMS (for Hermes) + code
-  return 'HMS' + code
+  return 'HMS' + code;
 }
 
 module.exports = {generateTrackingNumber};

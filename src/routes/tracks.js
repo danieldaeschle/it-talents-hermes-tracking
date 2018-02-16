@@ -10,15 +10,30 @@ router.route('/api/tracks/:trackingId')
   .get((req, res) => {
     let id = req.params.trackingId;
 
-    Track.findOne({ where: { trackingNumber: id } }).then(track => {
+    Track.findOne({
+      where: { trackingNumber: id },
+      include: { model: PackageState, as: 'packageStates' }
+    }).then(track => {
       if (track) {
+        track = track.dataValues;
+        track.packageStates = track.packageStates
+          .map(state => {
+            return {
+              progress: state.progress,
+              locationPostCode: state.locationPostCode,
+              message: state.message,
+              timestamp: state.createdAt
+            };
+          });
+
         res.json({
           trackingNumber: track.trackingNumber,
           senderPostCode: track.senderPostCode,
           receiverPostCode: track.receiverPostCode,
           date: track.date,
           packageSize: track.packageSize,
-          isExpress: track.isExpress
+          isExpress: track.isExpress,
+          packageStates: track.packageStates
         });
       } else {
         res.status(404).json({ message: 'Tracking id doesn\'t exists' });
@@ -29,10 +44,8 @@ router.route('/api/tracks/:trackingId')
     let id = req.params.trackingId;
 
     // Validate payload
-    let {error, value} = Joi.validate(req.body, {
-      packageState: PackageStateSchema
-    });
-    value.trackId = id;
+    let {error, value} = Joi.validate(req.body, PackageStateSchema);
+    value.trackingNumber = id;
 
     if (!error) {
       // Create package state or return error
@@ -40,12 +53,13 @@ router.route('/api/tracks/:trackingId')
         .findOrCreate({
           where: {
             progress: value.progress,
-            trackId: id
+            trackingNumber: id
           },
           defaults: value
         })
         .spread((track, created) => {
           if (created) {
+            track = track.dataValues;
             // On saved
             res.json({
               data: {

@@ -54,24 +54,18 @@ const PackageState = db.define('PackageState', {
   },
   message: {
     type: DataTypes.STRING
-  },
-  trackId: {
-    type: DataTypes.INTEGER,
-    references: {
-      model: Track,
-      key: 'trackingNumber'
-    }
   }
 });
 
 const PackageStateSchema = Joi.object().keys({
   progress: Joi.number().integer().min(1).max(4).required(),
   locationPostCode: Joi.string().required(),
-  message: Joi.string()
+  message: Joi.string().default(null)
 });
 
-PackageState.sync();
-Track.hasMany(PackageState);
+Track.hasMany(PackageState, { foreignKey: 'trackingNumber', as: 'packageStates' });
+PackageState.belongsTo(Track, { foreignKey: 'trackingNumber' });
 Track.sync();
+PackageState.sync();
 
 module.exports = {Track, TrackSchema, PackageState, PackageStateSchema};

@@ -1,0 +1,46 @@
+* {
+    font-family: Roboto;
+}
+
+body {
+    background-color: #E1F5FE;
+    min-width: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1 0 auto;
+}
+
+.container {
+    width: 80%;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.section {
+    margin-top: 32px;
+    margin-bottom: 32px;
+}
+
+.card-style {
+    width: 100% !important;
+    min-height: auto !important;
+    margin: 16px 0;
+}
+
+@media (ax-width: 40.0rem) { 
+    .container {
+        width: 100%;
+    }
+}
+
+#tabs {
+    background-color: white;
+    border: 0;
+}
+
+#progressCard {
+    display: none;
+}
