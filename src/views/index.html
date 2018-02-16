@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.blue-orange.min.css" />
     <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,400,500,700">
     <link rel="stylesheet" href="/styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://rawgit.com/krampstudio/aja.js/master/src/aja.min.js"></script>
     <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
     <script defer src="/index.js"></script>
@@ -30,7 +31,7 @@
                             </span>
                             <form id="track">
                                 <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                                    <input class="mdl-textfield__input" type="text" pattern="HMS[0-9]+" id="trackNumber">
+                                    <input class="mdl-textfield__input" type="text" pattern="HMS[0-9]+" id="trackNumber" value="HMS1520801121">
                                     <label class="mdl-textfield__label" for="trackNumber">HMS3559559810</label>
                                 </div>
                             </form>
@@ -55,6 +56,29 @@
                                 <b>Paketgröße: </b><span id="packageSize"></span><br>
                                 <b>Expressversendung: </b><span id="isExpress"></span><br>
                             </p>
+
+                            <div class="center-content">
+                                <span class="round-image" id="state-0">
+                                    <img src="/img/package.png">
+                                </span>
+
+                                <span class="round-image" id="state-1">
+                                    <img src="/img/store.png">
+                                </span>
+
+                                <span class="round-image" id="state-2">
+                                    <img src="/img/transport.png">
+                                </span>
+
+                                <span class="round-image" id="state-3">
+                                    <img src="/img/ontheway.png">
+                                </span>
+
+                                <span class="round-image" id="state-4">
+                                    <img src="/img/delivered.png">
+                                </span>
+                            </div>
+
                             <span>
                                 <h5>Nachrichtenverlauf</h5>
                             </span>
@@ -81,5 +105,10 @@
             <a href='https://www.freepik.com/free-vector/delivery-icons-set_909369.htm'>Images designed by Freepik</a>
         </div>
     </footer>
+
+    <div id="snackbar" class="mdl-js-snackbar mdl-snackbar">
+        <div class="mdl-snackbar__text"></div>
+        <button class="mdl-snackbar__action" type="button"></button>
+    </div>
 </body>
 </html>

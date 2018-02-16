@@ -36,7 +36,7 @@ router.route('/api/tracks/:trackingId')
           packageStates: track.packageStates
         });
       } else {
-        res.status(404).json({ message: 'Tracking id doesn\'t exists' });
+        res.status(404).json({ message: 'Tracking number doesn\'t exists' });
       }
     });
   })
