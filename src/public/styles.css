@@ -19,6 +19,10 @@ main {
     margin: 0 auto;
 }
 
+.center {
+    margin: 0 auto;
+}
+
 .center-content {
     display: flex;
 }
@@ -50,6 +54,45 @@ main {
     width: 100%;
 }
 
+#tabs {
+    background-color: white;
+    border: 0;
+}
+
+#progressCard {
+    display: none;
+}
+
+#history-table {
+    width: 100%;
+    table-layout: fixed;
+}
+
+#history-table th, #history-table td {
+    text-align: start;
+}
+
+#history-table td {
+    vertical-align: top;
+}
+
+#history div {
+    width: 100%;
+    word-wrap: break-word;
+    white-space: pre-wrap;      /* CSS3 */   
+    white-space: -moz-pre-wrap; /* Firefox */    
+    white-space: -pre-wrap;     /* Opera <7 */   
+    white-space: -o-pre-wrap;   /* Opera 7 */   
+}
+
+#history > li {
+    border-bottom: 1px lightgray solid;
+}
+
+#history > li:last-child {
+    border-bottom: none;
+}
+
 @media (max-width: 40.0rem) { 
     .container {
         width: calc(100% - 8px);
@@ -59,13 +102,10 @@ main {
         margin-top: 8px;
         margin-bottom: 8px;
     }
-}
 
-#tabs {
-    background-color: white;
-    border: 0;
-}
-
-#progressCard {
-    display: none;
+    .round-image {
+        padding: 12px;
+        width: calc(20% - 32px);
+        margin: 4px;
+    }
 }

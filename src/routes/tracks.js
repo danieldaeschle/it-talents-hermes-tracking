@@ -63,16 +63,16 @@ router.route('/api/tracks/:trackingId')
           },
           defaults: value
         })
-        .spread((track, created) => {
+        .spread((state, created) => {
           if (created) {
-            track = track.dataValues;
+            state = state.dataValues;
             // On saved
             res.json({
               data: {
-                trackId: track.trackId,
-                locationPostCode: track.locationPostCode,
-                message: track.message,
-                progress: track.progress
+                locationPostCode: state.locationPostCode,
+                message: state.message,
+                progress: state.progress,
+                timestamp: state.createdAt
               },
               error: false
             });
