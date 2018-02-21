@@ -3,7 +3,7 @@ const process = require('process');
 const Joi = require('joi');
 
 // Default db URI
-let dbUrl = 'sqlite://database.sqlite';
+let dbUrl = 'database.sqlite';
 
 // If test run use in memory database
 if (process.env.NODE_ENV === 'test') {

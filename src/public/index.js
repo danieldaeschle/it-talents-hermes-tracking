@@ -10,7 +10,7 @@ window.onload = function() {
       aja()
         .url('/api/tracks/' + trackingNumber)
         .on('200', function(data) {
-          setupProgressCard(data);
+          setupProgressCard(data.data);
         })
         .on('40x', function(data) {
           data = JSON.parse(data);
