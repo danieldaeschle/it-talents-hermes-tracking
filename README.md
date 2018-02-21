@@ -20,6 +20,16 @@ I use a hash algorithm to generate the tracking id because hash algorithms are s
  * express.js as backend library
  * sequelize as database orm (for Backend)
 
+## Features
+* Contains tests
+* Frontend for users and staff
+* Nice UI
+* REST API
+* Single Page Application
+* SQLite Database
+* Good documentation
+* Save track id generation
+
 ## How to setup
 
 ### Docker
