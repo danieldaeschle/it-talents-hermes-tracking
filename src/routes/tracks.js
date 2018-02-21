@@ -162,9 +162,7 @@ router.route('/api/tracks')
           };
         });
         res.json({
-          data: {
-            tracks
-          },
+          data: tracks,
           error: false
         });
       });

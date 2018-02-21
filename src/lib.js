@@ -12,6 +12,7 @@ function generateTrackingNumber(
 
   // First code
   let code1 = parseInt(crc.crc32(
+    receiverPostCode.toString() + 
     senderPostCode.toString() +
     date.toString()
   ).toString(16), 16);

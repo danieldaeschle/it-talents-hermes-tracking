@@ -54,6 +54,12 @@ main {
     width: 100%;
 }
 
+.mdl-list__item-primary-content,
+.mdl-list__item-text-body,
+.mdl-list__item--three-line {
+    height: auto !important;
+}
+
 #tabs {
     background-color: white;
     border: 0;
@@ -90,6 +96,14 @@ main {
 }
 
 #history > li:last-child {
+    border-bottom: none;
+}
+
+#package-list-container > li {
+    border-bottom: 1px solid lightgray;
+}
+
+#package-list-container > li:last-child {
     border-bottom: none;
 }
 

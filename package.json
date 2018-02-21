@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node ./src/app.js",
     "serve": "nodemon ./src/app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jasmine"
   },
   "author": "Daniel Däschle",
   "license": "MIT",
@@ -21,6 +21,7 @@
     "sqlite3": "^3.1.13"
   },
   "devDependencies": {
+    "jasmine": "^3.0.0",
     "nodemon": "^1.15.0"
   },
   "nodemonConfig": {

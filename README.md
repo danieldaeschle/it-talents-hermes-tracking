@@ -2,12 +2,44 @@
 
 ## Tracking id creation algorithm
 
-`'HMS' + hexint(crc32(trackId + date + senderPostCode + receiverPostCode + packageSiz + isExpress))`
+`'HMS' + hexint(crc32(date + senderPostCode + receiverPostCode)) + hexint(crc32(packageSize + isExpress))`
 
 'HMS' stands for 'Hermes' :)
 
 I use crc32 because it returns a short hash which is user friedly.
-It isn't save like a common hash algorithm but in this use case it can be ignored. (Who wants to brutefore a tracking id? xD)
+It isn't save like a common hash algorithm but in this use case it doesn't have to be very save. (Who wants to brutefore a tracking id? xD)
+
+The length of the tracking id is variable because the hash does not return always a hash with the same length.
+I use a hash algorithm to generate the tracking id because hash algorithms are specially designed to create a unique id of a text or something.
+
+## Used Languages + Libraries
+
+ * JavaScript ES5 (for Frontend)
+ * JavaScript ES6 / ES8 - NodeJS (for Backend)
+ * aja.js as HTTP library (for Frontend)
+ * express.js as backend library
+ * sequelize as database orm (for Backend)
+
+## How to setup
+
+### Docker
+Run the following commands (make sure you have internet access):
+```
+docker build . -t it-talents-tracking
+docker run -d it-talents-tracking
+```
+
+### Manual
+Run the following commands (make sure you have internet access):
+```
+cd path/to/app/dir
+npm install
+npm start
+```
+
+### Result
+Now you can route to [http://127.0.0.1/](http://127.0.0.1/) in your browser.
+
 
 ## API
 
@@ -46,7 +78,7 @@ Creates a state for the package progress.
 **Example payload**
 ```JSON
 {
-	"progress": 1,
+    "progress": 1,
     "locationPostCode": "79576",
     "message": "some text"
 }
@@ -134,7 +166,8 @@ Creates a track. This is only for staff (not for users).
         "receiverPostCode": "79588",
         "date": "2018-02-16T08:27:21.46Z",
         "packageSize": 2,
-        "isExpress": false
+        "isExpress": false,
+        "packageStates": []
     },
     "error": false
 }

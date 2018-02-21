@@ -1,13 +1,15 @@
 window.onload = function() {
+  // User page
   var track = document.getElementById('track');
   var snackbar = document.getElementById('snackbar');
 
   track.onsubmit = function() {
     var trackingNumber = track.trackNumber.value;
     if (trackingNumber) {
+      // Fetch a single track
       aja()
         .url('/api/tracks/' + trackingNumber)
-        .on('200', function (data) {
+        .on('200', function(data) {
           setupProgressCard(data);
         })
         .on('40x', function(data) {
@@ -22,6 +24,137 @@ window.onload = function() {
     track.reset();
     return false;
   }
+
+  // Staff page
+
+  // Get all tracks
+  fetchPackageList();
+
+  var addPackageDialog = document.getElementById('add-package');
+  var addPackageButton = document.getElementById('add-package-button');
+  var form = this.document.getElementById('add-package-form');
+  var newDate = document.getElementById('new-date');
+  var newSender = document.getElementById('new-sender-code');
+  var newReceiver = document.getElementById('new-receiver-code');
+  var newSize = document.getElementById('new-package-size');
+  var express = document.getElementById('new-express');
+  if (!addPackageDialog.showModal) {
+    dialogPolyfill.registerDialog(addPackageDialog);
+  }
+  addPackageButton.addEventListener('click', function() {
+    newDate.value = new Date().toISOString();
+    addPackageDialog.showModal();
+  });
+  addPackageDialog.querySelector('.close').addEventListener('click', function() {
+    addPackageDialog.close();
+    form.reset();
+  });
+  form.onsubmit = function() {
+    addPackageDialog.close();
+    var newPackage = {
+      senderPostCode: newSender.value,
+      receiverPostCode: newReceiver.value,
+      date: newDate.value,
+      packageSize: newSize.value,
+      isExpress: express.checked,
+    };
+    // Create new track on server
+    aja()
+      .method('POST')
+      .url('/api/tracks')
+      .body(newPackage)
+      .on('200', function(data) {
+        addTrackToList(data.data);
+      })
+      .on('40x', function(data) {
+        data = JSON.parse(data);
+        snackbar.MaterialSnackbar.showSnackbar({
+          message: data.message,
+          timeout: 2000
+        });
+      })
+      .go();
+    form.reset();
+    return false;
+  }
+
+  // Setup -> Update state dialog
+  var stateDialog = document.getElementById('update-state');
+  var stateForm = document.getElementById('state-form');
+  var stateTrackId = document.getElementById('state-track-id');
+  var stateMessage = document.getElementById('state-message');
+  var stateNextState = document.getElementById('state-next-state');
+  var stateLocationCode = document.getElementById('state-location-code');
+
+  if (!stateDialog.showModal) {
+    dialogPolyfill.registerDialog(stateDialog);
+  }
+  stateDialog.querySelector('.close').addEventListener('click', function () {
+    stateDialog.close();
+    stateForm.reset();
+  });
+
+  stateForm.onsubmit = function() {
+    var trackingId = stateTrackId.value;
+    var newState = {
+      message: stateMessage.value,
+      progress: stateNextState.value,
+      locationPostCode: stateLocationCode.value
+    };
+
+    aja()
+      .method('POST')
+      .url('/api/tracks/'+trackingId)
+      .body(newState)
+      .on('200', function (data) {
+        snackbar.MaterialSnackbar.showSnackbar({
+          message: 'Erfolgreich geändert',
+          timeout: 2000
+        });
+        // Replace current list with the new data
+        fetchPackageList();
+      })
+      .on('40x', function (data) {
+        data = JSON.parse(data);
+        snackbar.MaterialSnackbar.showSnackbar({
+          message: data.message,
+          timeout: 2000
+        });
+      })
+      .go();
+
+    stateDialog.close();
+    stateForm.reset();
+    return false;
+  }
+}
+
+function fetchPackageList() {
+  aja()
+    .url('/api/tracks')
+    .on('200', function (data) {
+      setupPackageList(data.data);
+    })
+    .on('40x', function (data) {
+      data = JSON.parse(data);
+      snackbar.MaterialSnackbar.showSnackbar({
+        message: data.message,
+        timeout: 2000
+      });
+    })
+    .go();
+}
+
+// On update state dialog button click
+function updateState(track) {
+  var stateDialog = document.getElementById('update-state');
+  var stateNextState = document.getElementById('state-next-state');
+  var stateTrackId = document.getElementById('state-track-id');
+  stateTrackId.value = track.trackingNumber;
+  stateNextState.value = Math.max(...track.packageStates.map(function(it) {
+    	return it.progress;
+  }), 0) + 1;
+  stateDialog.showModal();
 }
 
 function setupProgressCard(data) {
@@ -68,4 +201,38 @@ function setupProgressCard(data) {
       '<td>' + state.locationPostCode + '</td><td><div>' + (state.message ? state.message : '') + '</div></td></tr>';
   });
   history.innerHTML = historyContent;
+}
+
+function setupPackageList(data) {
+  var packageListContainer = document.getElementById('package-list-container');
+  packageListContainer.innerHTML = '';
+  //packageListContainer.innerHTML += listItem;
+  data.forEach(function(track) {
+    addTrackToList(track);
+  });
+}
+
+function addTrackToList(track) {
+  var packageListContainer = document.getElementById('package-list-container');
+  // Format HTML item which will be inserted into the page
+  var listItem = '<li class="mdl-list__item mdl-list__item--three-line" id="' + track.trackingNumber + '">' +
+    '<span class="mdl-list__item-primary-content">' +
+    '<span>' + track.trackingNumber + '</span>' +
+    '<span class="mdl-list__item-text-body">' +
+    'Datum: ' + new Date(track.date).toLocaleDateString() + 
+    '<br>Sender: ' + track.senderPostCode + 
+    '<br>Empfänger: ' + track.receiverPostCode + 
+    '<br>Aktueller Status: '+Math.max(...track.packageStates.map(function(it) {
+      return it.progress;
+    }), 0)+'</span>' +
+    '</span>' +
+    '<span class="mdl-list__item-secondary-content">' +
+    '<button onclick="updateState(' +
+    JSON.stringify(track).split('"').join('\'') +
+    ')" class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored">' +
+    '<i class="material-icons">edit_mode</i>' +
+    '</button >' +
+    '</span>' +
+    '</li>';
+  packageListContainer.innerHTML += listItem;
 }
