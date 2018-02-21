@@ -49,7 +49,7 @@ Returns the track object by id.
 Example result:
 ```JSON
 {
-    "trackingNumber": "HMS1520801121",
+    "trackingNumber": "HMS30664162862467031686",
     "senderPostCode": "79588",
     "receiverPostCode": "79588",
     "date": "2018-02-16T08:27:21.46Z",
@@ -91,7 +91,8 @@ Creates a state for the package progress.
     "data": {
         "locationPostCode": "79576",
         "message": "some text",
-        "progress": 1
+        "progress": 1,
+        "timestamp": "2018-02-16T12:40:15.650Z"
     },
     "error": false
 }
@@ -102,46 +103,49 @@ Returns all tracks. This is only for staff (not users).
 
 **Example result**
 ```JSON
-[
-    {
-        "trackingNumber": "HMS1520801121",
-        "senderPostCode": "79588",
-        "receiverPostCode": "79588",
-        "date": "2018-02-16T08:27:21.46Z",
-        "packageSize": 1,
-        "isExpress": false,
-        "packageStates": [
-            {
-                "progress": 2,
-                "locationPostCode": "79588",
-                "message": null,
-                "timestamp": "2018-02-16T12:40:15.650Z"
-            },
-            {
-                "progress": 1,
-                "locationPostCode": "79588",
-                "message": null,
-                "timestamp": "2018-02-16T12:40:42.471Z"
-            }
-        ]
-    },
-    {
-        "trackingNumber": "HMS1520801123",
-        "senderPostCode": "79576",
-        "receiverPostCode": "793248",
-        "date": "2018-03-16T08:27:21.46Z",
-        "packageSize": 2,
-        "isExpress": true,
-        "packageStates": [
-            {
-                "progress": 1,
-                "locationPostCode": "79588",
-                "message": null,
-                "timestamp": "2018-02-16T12:40:15.650Z"
-            }
-        ]
-    }
-]
+{
+    "data": [
+        {
+            "trackingNumber": "HMS30664162862467031686",
+            "senderPostCode": "79588",
+            "receiverPostCode": "79588",
+            "date": "2018-02-16T08:27:21.46Z",
+            "packageSize": 1,
+            "isExpress": false,
+            "packageStates": [
+                {
+                    "progress": 2,
+                    "locationPostCode": "79588",
+                    "message": null,
+                    "timestamp": "2018-02-16T12:40:15.650Z"
+                },
+                {
+                    "progress": 1,
+                    "locationPostCode": "79588",
+                    "message": null,
+                    "timestamp": "2018-02-16T12:40:42.471Z"
+                }
+            ]
+        },
+        {
+            "trackingNumber": "HMS30664162862467031686",
+            "senderPostCode": "79576",
+            "receiverPostCode": "793248",
+            "date": "2018-03-16T08:27:21.46Z",
+            "packageSize": 2,
+            "isExpress": true,
+            "packageStates": [
+                {
+                    "progress": 1,
+                    "locationPostCode": "79588",
+                    "message": null,
+                    "timestamp": "2018-02-16T12:40:15.650Z"
+                }
+            ]
+        }
+    ],
+    "error": false
+}
 ```
 
 ### POST `/api/tracks`
@@ -161,7 +165,7 @@ Creates a track. This is only for staff (not for users).
 ```JSON
 {
     "data": {
-        "trackingNumber": "HMS3694258127",
+        "trackingNumber": "HMS30664162862467031686",
         "senderPostCode": "79588",
         "receiverPostCode": "79588",
         "date": "2018-02-16T08:27:21.46Z",

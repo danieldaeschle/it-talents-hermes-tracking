@@ -1,7 +1,6 @@
 const { generateTrackingNumber } = require('../src/lib');
-const { expect } = require('chai');
 
-describe('tracking number generation', () => {
+describe('Tracking number generation', () => {
   it('should work', () => {
     let result = generateTrackingNumber(
       '79588',
