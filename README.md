@@ -36,7 +36,7 @@ I use a hash algorithm to generate the tracking id because hash algorithms are s
 Run the following commands (make sure you have internet access):
 ```
 docker build . -t it-talents-tracking
-docker run -d it-talents-tracking
+docker run -d -p 80:80 it-talents-tracking
 ```
 
 ### Manual
