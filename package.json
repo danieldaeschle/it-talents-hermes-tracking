@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node ./src/app.js",
     "serve": "nodemon ./src/app.js",
-    "test": "jasmine"
+    "test": "mocha"
   },
   "author": "Daniel Däschle",
   "license": "MIT",
@@ -21,7 +21,7 @@
     "sqlite3": "^3.1.13"
   },
   "devDependencies": {
-    "jasmine": "^3.0.0",
+    "mocha": "^5.0.1",
     "nodemon": "^1.15.0"
   },
   "nodemonConfig": {

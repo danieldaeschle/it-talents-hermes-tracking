@@ -33,7 +33,7 @@ docker run -d it-talents-tracking
 Run the following commands (make sure you have internet access):
 ```
 cd path/to/app/dir
-npm install
+npm install --production
 npm start
 ```
 
