@@ -21,6 +21,7 @@ I use a hash algorithm to generate the tracking id because hash algorithms are s
  * sequelize as database orm (for Backend)
 
 ## Features
+* Mobile optimized
 * Software tests
 * Frontend for users and staff
 * Nice UI
