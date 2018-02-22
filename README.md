@@ -21,7 +21,7 @@ I use a hash algorithm to generate the tracking id because hash algorithms are s
  * sequelize as database orm (for Backend)
 
 ## Features
-* Contains tests
+* Software tests
 * Frontend for users and staff
 * Nice UI
 * REST API
@@ -31,6 +31,15 @@ I use a hash algorithm to generate the tracking id because hash algorithms are s
 * Save track id generation
 
 ## How to setup
+
+### Preinstall
+Make sure you have NodeJS and Git installed.
+
+### Downloading
+```
+git clone https://github.com/danieldaeschle/it-talents-hermes-tracking.git
+cd it-talents-hermes-tracking
+```
 
 ### Docker
 Run the following commands (make sure you have internet access):
