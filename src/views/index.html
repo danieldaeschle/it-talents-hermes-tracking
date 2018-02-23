@@ -170,7 +170,7 @@
         </div>
     </dialog>
 
-    <!-- Update state dialogh -->
+    <!-- Update state dialog -->
     <dialog class="mdl-dialog" id="update-state">
         <h4 class="mdl-dialog__title">Status aktualisieren</h4>
         <div class="mdl-dialog__content">
@@ -193,6 +193,19 @@
         <div class="mdl-dialog__actions">
             <button type="submit" form="state-form" class="mdl-button">Speichern</button>
             <button type="button" class="mdl-button close">Abbrechen</button>
+        </div>
+    </dialog>
+
+    <!-- remove state dialog -->
+    <dialog class="mdl-dialog" id="remove-package">
+        <h4 class="mdl-dialog__title">Paket löschen</h4>
+        <div class="mdl-dialog__content">
+            <input type="hidden" id="remove-track-id">
+            <p>Möchtest du das Paket wirklich löschen?</p>
+        </div>
+        <div class="mdl-dialog__actions">
+            <button type="button" class="mdl-button submit">Ja</button>
+            <button type="button" class="mdl-button close">Nein</button>
         </div>
     </dialog>
 </body>

@@ -56,7 +56,8 @@ main {
 
 .mdl-list__item-primary-content,
 .mdl-list__item-text-body,
-.mdl-list__item--three-line {
+.mdl-list__item--three-line,
+.mdl-list__item-secondary-content {
     height: auto !important;
 }
 

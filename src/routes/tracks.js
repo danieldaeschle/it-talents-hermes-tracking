@@ -13,12 +13,14 @@ router.route('/api/tracks/:trackingId')
   .get((req, res) => {
     let id = req.params.trackingId;
 
+    // search in database
     Track.findOne({
       where: { trackingNumber: id },
       include: { model: PackageState, as: 'packageStates' }
     }).then(track => {
       if (track) {
         track = track.dataValues;
+        // change package state data from database result
         track.packageStates = track.packageStates
           .map(state => {
             return {
@@ -29,6 +31,7 @@ router.route('/api/tracks/:trackingId')
             };
           });
 
+        // return result
         res.json({
           trackingNumber: track.trackingNumber,
           senderPostCode: track.senderPostCode,
@@ -85,6 +88,29 @@ router.route('/api/tracks/:trackingId')
       // Returns {errors: [...]}
       res.status(400).json({ error: true, message: error.details.map(it => it.message)[0] });
     }
+  })
+  /**
+   * Removes a item from database
+   * Only for staff members (no authenticated yet)
+   */
+  .delete((req, res) => {
+    let id = req.params.trackingId;
+
+    Track
+      .destroy({
+        where: {
+          trackingNumber: id
+        }
+      })
+      .then(result => {
+        if (result === 1) {
+          res.json({ message: 'Track has been deleted', error: false });
+        } else if (result === 0) {
+          res.status(404).json({ message: 'Track with trackingNumber \''+id+'\' doesn\'t exist', error: true });
+        } else {
+          res.status(500).json({ message: 'An unknown error occured', error: true });
+        }
+      });
   });
 
 router.route('/api/tracks')
