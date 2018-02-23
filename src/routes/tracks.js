@@ -3,6 +3,7 @@ const Joi = require('joi');
 
 const { Track, TrackSchema, PackageState, PackageStateSchema } = require('../models');
 const { generateTrackingNumber } = require('../lib');
+const { verify } = require('./authenticate');
 
 const router = express.Router();
 
@@ -11,7 +12,7 @@ router.route('/api/tracks/:trackingId')
    * Returns on track by tracking id
    */
   .get((req, res) => {
-    let id = req.params.trackingId;
+    const id = req.params.trackingId;
 
     // search in database
     Track.findOne({
@@ -53,10 +54,10 @@ router.route('/api/tracks/:trackingId')
    * Creates a track state by tracking id
    */
   .post((req, res) => {
-    let id = req.params.trackingId;
+    const id = req.params.trackingId;
 
     // Validate payload
-    let {error, value} = Joi.validate(req.body, PackageStateSchema);
+    const {error, value} = Joi.validate(req.body, PackageStateSchema);
     value.trackingNumber = id;
 
     if (!error) {
@@ -88,7 +89,7 @@ router.route('/api/tracks/:trackingId')
           }
         });
     } else {
-      // Returns {errors: [...]}
+      // Returns {message: ..., error: ...}
       res.status(400).json({ error: true, message: error.details.map(it => it.message)[0] });
     }
   })
@@ -96,24 +97,32 @@ router.route('/api/tracks/:trackingId')
    * Removes a item from database
    * Only for staff members (no authenticated yet)
    */
-  .delete((req, res) => {
-    let id = req.params.trackingId;
+  .delete((req, res) => {// Check token
+    const token = req.get('X-Access-Token');
+    const authorized = verify(token);
 
-    Track
-      .destroy({
-        where: {
-          trackingNumber: id
-        }
-      })
-      .then(result => {
-        if (result === 1) {
-          res.json({ message: 'Track has been deleted', error: false });
-        } else if (result === 0) {
-          res.status(404).json({ message: 'Track with trackingNumber \''+id+'\' doesn\'t exist', error: true });
-        } else {
-          res.status(500).json({ message: 'An unknown error occured', error: true });
-        }
-      });
+    if (authorized) {
+      const id = req.params.trackingId;
+
+      Track
+        .destroy({
+          where: {
+            trackingNumber: id
+          }
+        })
+        .then(result => {
+          if (result === 1) {
+            res.json({ message: 'Track has been deleted', error: false });
+          } else if (result === 0) {
+            res.status(404).json({ message: 'Track with trackingNumber \''+id+'\' doesn\'t exist', error: true });
+          } else {
+            res.status(500).json({ message: 'An unknown error occured', error: true });
+          }
+        });
+    } else {
+      // Not authorized
+      res.status(401).json({ message: 'You are not authorized to do this action', error: true });
+    }
   });
 
 router.route('/api/tracks')
@@ -122,50 +131,59 @@ router.route('/api/tracks')
    * Contains no authorization yet
    */
   .post((req, res) => {
-    // Validate payload
-    let {error, value} = Joi.validate(req.body, TrackSchema);
+    // Check token
+    const token = req.get('X-Access-Token');
+    const authorized = verify(token);
 
-    // Check if validation is successful
-    if (!error) {
-      value.trackingNumber = generateTrackingNumber(
-        value.senderPostCode,
-        value.receiverPostCode,
-        value.date,
-        value.packageSize,
-        value.isExpress
-      );
+    if (authorized) {
+      // Validate payload
+      const { error, value } = Joi.validate(req.body, TrackSchema);
 
-      // Create object or return error
-      Track
-        .findOrCreate({
-          where: value,
-          defaults: {
-            trackingNumber: value.trackingNumber
-          }
-        })
-        .spread((track, created) => {
-          if (created) {
-            // On saved
-            res.json({
-              data: {
-                trackingNumber: track.trackingNumber,
-                senderPostCode: track.senderPostCode,
-                receiverPostCode: track.receiverPostCode,
-                date: track.date,
-                packageSize: track.packageSize,
-                isExpress: track.isExpress,
-                packageStates: []
-              },
-              error: false
-            });
-          } else {
-            // Return error
-            res.status(400).json({ message: 'Track already exists', error: true });
-          }
-        });
+      // Check if validation is successful
+      if (!error) {
+        value.trackingNumber = generateTrackingNumber(
+          value.senderPostCode,
+          value.receiverPostCode,
+          value.date,
+          value.packageSize,
+          value.isExpress
+        );
+
+        // Create object or return error
+        Track
+          .findOrCreate({
+            where: value,
+            defaults: {
+              trackingNumber: value.trackingNumber
+            }
+          })
+          .spread((track, created) => {
+            if (created) {
+              // On saved
+              res.json({
+                data: {
+                  trackingNumber: track.trackingNumber,
+                  senderPostCode: track.senderPostCode,
+                  receiverPostCode: track.receiverPostCode,
+                  date: track.date,
+                  packageSize: track.packageSize,
+                  isExpress: track.isExpress,
+                  packageStates: []
+                },
+                error: false
+              });
+            } else {
+              // Return error
+              res.status(400).json({ message: 'Track already exists', error: true });
+            }
+          });
+      } else {
+        // Returns {message: ..., error: ...}
+        res.status(400).json({ error: true, message: error.details.map(it => it.message)[0] });
+      }
     } else {
-      // Returns {errors: [...]}
-      res.status(400).json({ error: true, message: error.details.map(it => it.message)[0] });
+      // Not authorized
+      res.status(401).json({ message: 'You are not authorized to do this action', error: true });
     }
   })
   /**
@@ -173,28 +191,36 @@ router.route('/api/tracks')
    * Contains no authorization yet
    */
   .get((req, res) => {
-    Track
-      .findAll({
-        include: { model: PackageState, as: 'packageStates' }
-      })
-      .then(data => {
-        let tracks = data.map(track_ => {
-          let track = track_.dataValues;
-          return {
-            trackingNumber: track.trackingNumber,
-            senderPostCode: track.senderPostCode,
-            receiverPostCode: track.receiverPostCode,
-            date: track.date,
-            packageSize: track.packageSize,
-            isExpress: track.isExpress,
-            packageStates: track.packageStates.map(state => state.dataValues)
-          };
+    const token = req.get('X-Access-Token');
+    const authorized = verify(token);
+
+    if (authorized) {
+      Track
+        .findAll({
+          include: { model: PackageState, as: 'packageStates' }
+        })
+        .then(data => {
+          const tracks = data.map(track_ => {
+            const track = track_.dataValues;
+            return {
+              trackingNumber: track.trackingNumber,
+              senderPostCode: track.senderPostCode,
+              receiverPostCode: track.receiverPostCode,
+              date: track.date,
+              packageSize: track.packageSize,
+              isExpress: track.isExpress,
+              packageStates: track.packageStates.map(state => state.dataValues)
+            };
+          });
+          res.json({
+            data: tracks,
+            error: false
+          });
         });
-        res.json({
-          data: tracks,
-          error: false
-        });
-      });
+    } else {
+      // Not authorized
+      res.status(401).json({ message: 'You are not authorized to do this action', error: true });
+    }
   });
 
 module.exports = router;
