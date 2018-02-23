@@ -95,7 +95,7 @@ router.route('/api/tracks/:trackingId')
   })
   /**
    * Removes a item from database
-   * Only for staff members (no authenticated yet)
+   * Only for staff members
    */
   .delete((req, res) => {// Check token
     const token = req.get('X-Access-Token');
@@ -128,7 +128,6 @@ router.route('/api/tracks/:trackingId')
 router.route('/api/tracks')
   /**
    * Creates a track (for staff members)
-   * Contains no authorization yet
    */
   .post((req, res) => {
     // Check token
@@ -188,7 +187,6 @@ router.route('/api/tracks')
   })
   /**
    * Returns all tracks for staff members
-   * Contains no authorization yet
    */
   .get((req, res) => {
     const token = req.get('X-Access-Token');

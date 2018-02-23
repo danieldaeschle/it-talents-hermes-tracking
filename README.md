@@ -63,10 +63,35 @@ Now you can route to [http://127.0.0.1/](http://127.0.0.1/) in your browser.
 
 ## API
 
+### POST `/api/authenticate`
+Returns a token which gives you access to all staff resources.<br>
+Username: talent<br>
+Password: iamnotsecret
+
+Expiration time of a token is 1 hour.
+
+**Exmaple payload**
+```JSON
+{
+    "password": "iamnotsecret",
+    "username": "talent"
+}
+```
+
+**Example result**
+```JSON
+{
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRhbGVudCIsInBhc3N3b3JkIjoiaWFtbm90c2VjcmV0IiwiaWF0IjoxNTE5Mzc1NzU3LCJleHAiOjE1MTkzNzkzNTd9.sRdl-7IO_Q1wHeFK9zs0P-K0ftza8JAfs6bSgBongSo"
+}
+```
+
+**You can add the token in a requests header as 'X-Access-Token'.**
+
+
 ### GET `/api/tracks/:trackingId`
 Returns the track object by id.
 
-Example result:
+**Example result**
 ```JSON
 {
     "trackingNumber": "HMS30664162862467031686",
