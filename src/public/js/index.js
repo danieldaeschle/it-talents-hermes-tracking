@@ -64,6 +64,7 @@ window.onload = function () {
     // Create new track on server
     aja()
       .method('POST')
+      .header('X-Access-Token', token)
       .url('/api/tracks')
       .body(newPackage)
       .on('200', function (data) {

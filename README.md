@@ -13,12 +13,12 @@ The length of the tracking id is variable because the hash does not return alway
 I use a hash algorithm to generate the tracking id because hash algorithms are specially designed to create a unique id of a text or something.
 
 ## Used Languages + Libraries
-
- * JavaScript ES5 (for Frontend)
- * JavaScript ES6 / ES8 - NodeJS (for Backend)
- * aja.js as HTTP library (for Frontend)
- * express.js as backend library
- * sequelize as database orm (for Backend)
+* JavaScript ES5 (for Frontend)
+* JavaScript ES6 / ES8 - NodeJS (for Backend)
+* aja.js as HTTP library (for Frontend)
+* express.js as backend library
+* sequelize as database orm (for Backend)
+* jsonwebtoken (for Authentication / Backend)
 
 ## Features
 * Mobile optimized
@@ -30,6 +30,7 @@ I use a hash algorithm to generate the tracking id because hash algorithms are s
 * SQLite Database
 * Good documentation
 * Save track id generation
+* Authentication (with tokens)
 
 ## How to setup
 
