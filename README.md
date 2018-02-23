@@ -97,6 +97,17 @@ Creates a state for the package progress.
 }
 ```
 
+### POST `/api/tracks/:trackingId`
+Deletes a single track. This is only for staff (not users).
+
+**Example result**
+```JSON
+{
+    "message": "Track has been deleted",
+    "error": false
+}
+```
+
 ### GET `/api/tracks`
 Returns all tracks. This is only for staff (not users).
 
