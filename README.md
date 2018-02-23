@@ -42,7 +42,7 @@ git clone https://github.com/danieldaeschle/it-talents-hermes-tracking.git
 cd it-talents-hermes-tracking
 ```
 
-### Docker
+### Docker (Optional)
 Run the following commands (make sure you have internet access):
 ```
 docker build . -t it-talents-tracking
