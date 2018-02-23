@@ -1,18 +1,21 @@
-window.onload = function() {
+// own scope (token is save then)
+var token = localStorage.getItem('token') || '';
+
+window.onload = function () {
   // User page
   var track = document.getElementById('track');
   var snackbar = document.getElementById('snackbar');
 
-  track.onsubmit = function() {
+  track.onsubmit = function () {
     var trackingNumber = track.trackNumber.value;
     if (trackingNumber) {
       // Fetch a single track
       aja()
         .url('/api/tracks/' + trackingNumber)
-        .on('200', function(data) {
+        .on('200', function (data) {
           setupProgressCard(data.data);
         })
-        .on('40x', function(data) {
+        .on('40x', function (data) {
           data = JSON.parse(data);
           snackbar.MaterialSnackbar.showSnackbar({
             message: data.message,
@@ -25,7 +28,7 @@ window.onload = function() {
     return false;
   }
 
-  // Staff page
+  // ----- Staff page ------
 
   // Get all tracks
   fetchPackageList();
@@ -41,15 +44,15 @@ window.onload = function() {
   if (!addPackageDialog.showModal) {
     dialogPolyfill.registerDialog(addPackageDialog);
   }
-  addPackageButton.addEventListener('click', function() {
+  addPackageButton.addEventListener('click', function () {
     newDate.value = new Date().toISOString();
     addPackageDialog.showModal();
   });
-  addPackageDialog.querySelector('.close').addEventListener('click', function() {
+  addPackageDialog.querySelector('.close').addEventListener('click', function () {
     addPackageDialog.close();
     form.reset();
   });
-  form.onsubmit = function() {
+  form.onsubmit = function () {
     addPackageDialog.close();
     var newPackage = {
       senderPostCode: newSender.value,
@@ -63,10 +66,10 @@ window.onload = function() {
       .method('POST')
       .url('/api/tracks')
       .body(newPackage)
-      .on('200', function(data) {
+      .on('200', function (data) {
         addTrackToList(data.data);
       })
-      .on('40x', function(data) {
+      .on('40x', function (data) {
         data = JSON.parse(data);
         snackbar.MaterialSnackbar.showSnackbar({
           message: data.message,
@@ -89,12 +92,12 @@ window.onload = function() {
   if (!stateDialog.showModal) {
     dialogPolyfill.registerDialog(stateDialog);
   }
-  stateDialog.querySelector('.close').addEventListener('click', function() {
+  stateDialog.querySelector('.close').addEventListener('click', function () {
     stateDialog.close();
     stateForm.reset();
   });
 
-  stateForm.onsubmit = function() {
+  stateForm.onsubmit = function () {
     var trackingId = stateTrackId.value;
     var newState = {
       message: stateMessage.value,
@@ -103,8 +106,9 @@ window.onload = function() {
     };
 
     aja()
+      .header('X-Access-Token', token)
       .method('POST')
-      .url('/api/tracks/'+trackingId)
+      .url('/api/tracks/' + trackingId)
       .body(newState)
       .on('200', function (data) {
         snackbar.MaterialSnackbar.showSnackbar({
@@ -129,20 +133,58 @@ window.onload = function() {
   }
 }
 
+// requires auth
 function fetchPackageList() {
   aja()
+    .header('X-Access-Token', token)
     .url('/api/tracks')
-    .on('200', function(data) {
+    .on('200', function (data) {
       setupPackageList(data.data);
     })
-    .on('40x', function(data) {
-      data = JSON.parse(data);
-      snackbar.MaterialSnackbar.showSnackbar({
-        message: data.message,
-        timeout: 2000
-      });
+    .on('401', function (data) {
+      showLogin();
     })
     .go();
+}
+
+function showLogin() {
+  var loginForm = document.getElementById('login-form');
+  var username = document.getElementById('username');
+  var password = document.getElementById('password');
+  var loginCard = document.getElementById('login');
+  var packageList = document.getElementById('package-list');
+
+  // hide package list and show login
+  loginCard.style.display = 'block';
+  packageList.style.display = 'none';
+
+  loginForm.onsubmit = function () {
+    aja()
+      .url('/api/authenticate')
+      .method('POST')
+      .body({ username: username.value, password: password.value })
+      .on('200', function (data) {
+        // set token
+        token = data.token;
+        localStorage.setItem('token', token);
+        // hide login show package list
+        loginCard.style.display = 'none';
+        packageList.style.display = 'block';
+
+        // fetch package list
+        fetchPackageList();
+      })
+      .on('40x', function (data) {
+        data = JSON.parse(data);
+        snackbar.MaterialSnackbar.showSnackbar({
+          message: data.message,
+          timeout: 2000
+        });
+      })
+      .go();
+    loginForm.reset();
+    return false;
+  }
 }
 
 // On update state dialog button click
@@ -151,32 +193,34 @@ function updateState(track) {
   var stateNextState = document.getElementById('state-next-state');
   var stateTrackId = document.getElementById('state-track-id');
   stateTrackId.value = track.trackingNumber;
-  stateNextState.value = Math.max(...track.packageStates.map(function(it) {
-    	return it.progress;
+  stateNextState.value = Math.max(...track.packageStates.map(function (it) {
+    return it.progress;
   }), 0) + 1;
   stateDialog.showModal();
 }
 
-function deleteState(id) {
+// on delete package dialog button click
+function deletePackage(id) {
   // show modal
   var idHolder = document.getElementById('remove-track-id');
   var removeDialog = document.getElementById('remove-package');
   var submitButton = removeDialog.querySelector('.submit');
   var closeButton = removeDialog.querySelector('.close');
   idHolder.value = id;
-  submitButton.addEventListener('click', function() {
+  submitButton.addEventListener('click', function () {
     var id = idHolder.value;
     aja()
       .method('DELETE')
-      .url('/api/tracks/'+id)
-      .on('200', function(data) {
+      .url('/api/tracks/' + id)
+      .header('X-Access-Token', token)
+      .on('200', function (data) {
         fetchPackageList();
         snackbar.MaterialSnackbar.showSnackbar({
           message: data.message,
           timeout: 2000
         });
       })
-      .on('40x', function(data) {
+      .on('40x', function (data) {
         data = JSON.parse(data);
         snackbar.MaterialSnackbar.showSnackbar({
           message: data.message,
@@ -184,9 +228,9 @@ function deleteState(id) {
         });
       })
       .go();
-      removeDialog.close();
+    removeDialog.close();
   });
-  closeButton.addEventListener('click', function() {
+  closeButton.addEventListener('click', function () {
     removeDialog.close();
   });
   removeDialog.showModal();
@@ -200,9 +244,9 @@ function setupProgressCard(data) {
   var state2 = document.getElementById('state-2');
   var state3 = document.getElementById('state-3');
   var state4 = document.getElementById('state-4');
-  var historyContent = '<tr><td>'+date.toLocaleDateString()+'</td>'+
-    '<td>'+data.senderPostCode+'</td><td><div>Paket wurde an der Poststelle abgegeben</div></td></tr>';
-  
+  var historyContent = '<tr><td>' + date.toLocaleDateString() + '</td>' +
+    '<td>' + data.senderPostCode + '</td><td><div>Paket wurde an der Poststelle abgegeben</div></td></tr>';
+
 
   // Set content
   document.getElementById('date').innerText = date.toLocaleString();
@@ -225,9 +269,9 @@ function setupProgressCard(data) {
   // Sort state
   // Setting colors for states
   // Adding messages to message list
-  data.packageStates.sort(function(stateA, stateB) {
+  data.packageStates.sort(function (stateA, stateB) {
     return stateA.progress - stateB.progress;
-  }).forEach(function(state) {
+  }).forEach(function (state) {
     var timestamp = new Date(state.timestamp);
     document.getElementById('state-' + state.progress)
       .style
@@ -242,7 +286,7 @@ function setupPackageList(data) {
   var packageListContainer = document.getElementById('package-list-container');
   packageListContainer.innerHTML = '';
   //packageListContainer.innerHTML += listItem;
-  data.forEach(function(track) {
+  data.forEach(function (track) {
     addTrackToList(track);
   });
 }
@@ -251,27 +295,27 @@ function addTrackToList(track) {
   var packageListContainer = document.getElementById('package-list-container');
   // Format HTML item which will be inserted into the page
   var listItem = '<li class="mdl-list__item mdl-list__item--three-line" id="' + track.trackingNumber + '">' +
-      '<span class="mdl-list__item-primary-content">' +
-        '<span>' + track.trackingNumber + '</span>' +
-        '<span class="mdl-list__item-text-body">' +
-        'Datum: ' + new Date(track.date).toLocaleDateString() + 
-          '<br>Sender: ' + track.senderPostCode + 
-          '<br>Empfänger: ' + track.receiverPostCode + 
-          '<br>Aktueller Status: '+Math.max(...track.packageStates.map(function(it) {
-            return it.progress;
-          }), 0)+
-        '</span>' +
-      '</span>' +
-      '<span class="mdl-list__item-secondary-content">' +
-        '<button onclick="deleteState(\''+track.trackingNumber+'\')" class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored">' +
-          '<i class="material-icons">close</i>' +
-        '</button>' +
-        '<button onclick="updateState(' +
-          JSON.stringify(track).split('"').join('\'') +
-          ')" class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored">' +
-          '<i class="material-icons">edit_mode</i>' +
-        '</button>' +
-      '</span>' +
+    '<span class="mdl-list__item-primary-content">' +
+    '<span>' + track.trackingNumber + '</span>' +
+    '<span class="mdl-list__item-text-body">' +
+    'Datum: ' + new Date(track.date).toLocaleDateString() +
+    '<br>Sender: ' + track.senderPostCode +
+    '<br>Empfänger: ' + track.receiverPostCode +
+    '<br>Aktueller Status: ' + Math.max(...track.packageStates.map(function (it) {
+      return it.progress;
+    }), 0) +
+    '</span>' +
+    '</span>' +
+    '<span class="mdl-list__item-secondary-content">' +
+    '<button onclick="deletePackage(\'' + track.trackingNumber + '\')" class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored">' +
+    '<i class="material-icons">close</i>' +
+    '</button>' +
+    '<button onclick="updateState(' +
+    JSON.stringify(track).split('"').join('\'') +
+    ')" class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored">' +
+    '<i class="material-icons">edit_mode</i>' +
+    '</button>' +
+    '</span>' +
     '</li>';
   packageListContainer.innerHTML += listItem;
 }
