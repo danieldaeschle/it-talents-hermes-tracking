@@ -1,4 +1,4 @@
-FROM node:carbon
+FROM node:9.5.0-alpine
 WORKDIR /app
 ADD . /app
 RUN npm install --production

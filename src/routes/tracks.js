@@ -33,16 +33,19 @@ router.route('/api/tracks/:trackingId')
 
         // return result
         res.json({
-          trackingNumber: track.trackingNumber,
-          senderPostCode: track.senderPostCode,
-          receiverPostCode: track.receiverPostCode,
-          date: track.date,
-          packageSize: track.packageSize,
-          isExpress: track.isExpress,
-          packageStates: track.packageStates
+          data: {
+            trackingNumber: track.trackingNumber,
+            senderPostCode: track.senderPostCode,
+            receiverPostCode: track.receiverPostCode,
+            date: track.date,
+            packageSize: track.packageSize,
+            isExpress: track.isExpress,
+            packageStates: track.packageStates
+          },
+          error: false
         });
       } else {
-        res.status(404).json({ message: 'Tracking number doesn\'t exists' });
+        res.status(404).json({ message: 'Tracking number doesn\'t exists', error: true });
       }
     });
   })

@@ -1,8 +1,19 @@
 const { Sequelize, DataTypes } = require('sequelize');
+const process = require('process');
 const Joi = require('joi');
 
-const db = new Sequelize('sqlite://database.sqlite', {
-  logging: false
+// Default db URI
+let dbUrl = 'database.sqlite';
+
+// If test run use in memory database
+if (process.env.NODE_ENV === 'test') {
+  dbUrl = ':memory:';
+}
+
+const db = new Sequelize({
+  logging: false,
+  dialect: 'sqlite',
+  storage: dbUrl
 });
 
 const Track = db.define('Track', {
