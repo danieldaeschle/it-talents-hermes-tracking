@@ -35,7 +35,7 @@ I use a hash algorithm to generate the tracking id because hash algorithms are s
 ## How to setup
 
 ### Preinstall
-Make sure you have NodeJS and Git installed.
+Make sure you have NodeJS, Python (for node-sqlite compilation) and Git installed. (Python in path variable)
 
 ### Downloading
 ```
